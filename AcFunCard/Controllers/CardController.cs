@@ -114,13 +114,13 @@ namespace AcFunCard.Controllers
             <g transform=""translate(0, 0)"">
                 <g class=""stagger"" style=""animation-delay: 450ms"" transform=""translate(25, 0)"">
                     <text class=""stat bold"" y=""12.5"">粉丝数：</text>
-                    <text class=""stat"" x=""170"" y=""12.5"">{info.Profile.Following}</text>
+                    <text class=""stat"" x=""170"" y=""12.5"">{info.Profile.Followed}</text>
                 </g>
             </g>
             <g transform=""translate(248, 0)"">
                 <g class=""stagger"" style=""animation-delay: 600ms"" transform=""translate(25, 0)"">
                     <text class=""stat bold"" y=""12.5"">关注数：</text>
-                    <text class=""stat"" x=""170"" y=""12.5"">{info.Profile.Followed}</text>
+                    <text class=""stat"" x=""170"" y=""12.5"">{info.Profile.Following}</text>
                 </g>
             </g>
             <g transform=""translate(0, 30)"">
