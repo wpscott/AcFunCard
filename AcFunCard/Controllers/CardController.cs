@@ -21,7 +21,7 @@ namespace AcFunCard.Controllers
         }
 
         [HttpGet("{id:long}")]
-        public async Task<ActionResult> Get(long id)
+        public async Task<ActionResult> Get(long id, [FromQuery(Name = "caption")] string caption, [FromQuery(Name = "name_color")] string nameColor, [FromQuery(Name = "sign_color")] string signatureColor, [FromQuery(Name = "bg_color")] string backgroundColor, [FromQuery(Name = "border_color")] string borderColor)
         {
             using var client = factory.CreateClient();
 
@@ -65,16 +65,22 @@ namespace AcFunCard.Controllers
                 }
             }
 
+            CheckString(ref caption, "在AcFun");
+            CheckString(ref nameColor, "fd4c5d");
+            CheckString(ref signatureColor, "acf");
+            CheckString(ref backgroundColor, "fefefe");
+            CheckString(ref borderColor, "ccc");
+
             var svg = @$"<svg width=""495"" height=""195"" viewBox=""0 0 495 195"" fill=""none"" xmlns=""http://www.w3.org/2000/svg"">
     <style>
         .name {{
             font: 600 18px 'Segoe UI', Ubuntu, Sans-Serif;
-            fill: #fd4c5d;
+            fill: #{nameColor};
             animation: fadeInAnimation 0.8s ease-in-out forwards;
         }}
         .signature {{
             font: 400 14px 'Segoe UI', Ubuntu, Sans-Serif;
-            fill: #acf;
+            fill: #{signatureColor};
             animation: fadeInAnimation 0.8s ease-in-out forwards;
         }}
         .stat {{
@@ -98,10 +104,10 @@ namespace AcFunCard.Controllers
             }}
         }}
     </style>
-    <rect x=""0.5"" y=""0.5"" rx=""4.5"" height=""99%"" stroke=""#ccc"" width=""494"" fill=""#fefefe"" stroke-opacity=""1"" />
+    <rect x=""0.5"" y=""0.5"" rx=""4.5"" height=""99%"" stroke=""#{borderColor}"" width=""494"" fill=""#{backgroundColor}"" stroke-opacity=""1"" />
     <g transform=""translate(25, 35)"">
         <g transform=""translate(0, 0)"">
-            <text x=""0"" y=""0"" class=""name"">{info.Profile.Name}在AcFun</text>
+            <text x=""0"" y=""0"" class=""name"">{info.Profile.Name}{caption}</text>
         </g>
     </g>
     <g transform=""translate(25, 60)"">
@@ -151,6 +157,14 @@ namespace AcFunCard.Controllers
     </g>
 </svg>";
             return Content(svg, "image/svg+xml", Encoding.UTF8);
+        }
+
+        internal static void CheckString(ref string str, string def)
+        {
+            if (string.IsNullOrWhiteSpace(str?.Trim()))
+            {
+                str = def;
+            }
         }
     }
 }
