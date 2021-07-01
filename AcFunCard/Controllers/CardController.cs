@@ -1,6 +1,7 @@
 ﻿using AcFunCard.Models;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
+using System.Linq;
 using System.Net.Http;
 using System.Text;
 using System.Text.Json;
@@ -71,7 +72,21 @@ namespace AcFunCard.Controllers
             CheckString(ref backgroundColor, "fefefe");
             CheckString(ref borderColor, "ccc");
 
-            var svg = @$"<svg width=""495"" height=""195"" viewBox=""0 0 495 195"" fill=""none"" xmlns=""http://www.w3.org/2000/svg"">
+            var signatures = info.Profile.Signature
+                .Split('\r', '\n')
+                .Where(sign => !string.IsNullOrWhiteSpace(sign))
+                .ToArray();
+            var lineMargin = 0;
+            var signature = "";
+            foreach (var sign in signatures)
+            {
+                signature += @$"<tspan x=""0"" y=""{lineMargin}"">{sign}</tspan>";
+                lineMargin += 20;
+            }
+            var height = 155 + lineMargin;
+            var detailMargin = 60 + lineMargin;
+
+            var svg = @$"<svg width=""495"" height=""{height}"" viewBox=""0 0 495 {height}"" fill=""none"" xmlns=""http://www.w3.org/2000/svg"">
     <style>
         .name {{
             font: 600 18px 'Segoe UI', Ubuntu, Sans-Serif;
@@ -112,10 +127,10 @@ namespace AcFunCard.Controllers
     </g>
     <g transform=""translate(25, 60)"">
         <g transform=""translate(0,0)"">
-            <text x=""0"" y=""0"" class=""signature"">{info.Profile.Signature}</text>
+            <text x=""0"" y=""0"" class=""signature"">{signature}</text>
         </g>
     </g>
-    <g transform=""translate(0, 84)"">
+    <g transform=""translate(0, {detailMargin})"">
         <svg x=""0"" y=""0"">
             <g transform=""translate(0, 0)"">
                 <g class=""stagger"" style=""animation-delay: 450ms"" transform=""translate(25, 0)"">
