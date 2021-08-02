@@ -22,7 +22,7 @@ namespace AcFunCard.Controllers
         }
 
         [HttpGet("{id:long}")]
-        public async Task<ActionResult> Get(long id, [FromQuery(Name = "caption")] string caption, [FromQuery(Name = "name_color")] string nameColor, [FromQuery(Name = "sign_color")] string signatureColor, [FromQuery(Name = "bg_color")] string backgroundColor, [FromQuery(Name = "border_color")] string borderColor)
+        public async Task<ActionResult> Get(long id, [FromQuery] Config config)
         {
             using var client = factory.CreateClient();
 
@@ -66,12 +66,6 @@ namespace AcFunCard.Controllers
                 }
             }
 
-            CheckString(ref caption, "在AcFun");
-            CheckString(ref nameColor, "fd4c5d");
-            CheckString(ref signatureColor, "acf");
-            CheckString(ref backgroundColor, "fefefe");
-            CheckString(ref borderColor, "ccc");
-
             var signatures = info.Profile.Signature
                 .Split('\r', '\n')
                 .Where(sign => !string.IsNullOrWhiteSpace(sign))
@@ -90,17 +84,35 @@ namespace AcFunCard.Controllers
     <style>
         .name {{
             font: 600 18px 'Segoe UI', Ubuntu, Sans-Serif;
-            fill: #{nameColor};
+            fill: #{config.NameColor};
             animation: fadeInAnimation 0.8s ease-in-out forwards;
         }}
         .signature {{
             font: 400 14px 'Segoe UI', Ubuntu, Sans-Serif;
-            fill: #{signatureColor};
+            fill: #{config.SignatureColor};
             animation: fadeInAnimation 0.8s ease-in-out forwards;
         }}
         .stat {{
             font: 600 14px 'Segoe UI', Ubuntu, ""Helvetica Neue"", Sans-Serif;
             fill: #333;
+        }}
+        .followed {{
+            fill: #{config.FollowedColor};
+        }}
+        .following {{
+            fill: #{config.FollowingColor};
+        }}
+        .content {{
+            fill: #{config.ContentColor};
+        }}
+        .club {{
+            fill: #{config.ClubColor};
+        }}
+        .medal {{
+            fill: #{config.MedalColor};
+        }}
+        .level {{
+            fill: #{config.LevelColor};
         }}
         .stagger {{
             opacity: 0;
@@ -108,7 +120,7 @@ namespace AcFunCard.Controllers
         }}
 
         .bold {{
-            font-weight: 700
+            font-weight: 700;
         }}
         @keyframes fadeInAnimation {{
             from {{
@@ -119,10 +131,10 @@ namespace AcFunCard.Controllers
             }}
         }}
     </style>
-    <rect x=""0.5"" y=""0.5"" rx=""4.5"" height=""99%"" stroke=""#{borderColor}"" width=""494"" fill=""#{backgroundColor}"" stroke-opacity=""1"" />
+    <rect x=""0.5"" y=""0.5"" rx=""4.5"" height=""99%"" stroke=""#{config.BorderColor}"" width=""494"" fill=""#{config.BackgroundColor}"" stroke-opacity=""1"" />
     <g transform=""translate(25, 35)"">
         <g transform=""translate(0, 0)"">
-            <text x=""0"" y=""0"" class=""name"">{info.Profile.Name}{caption}</text>
+            <text x=""0"" y=""0"" class=""name"">{info.Profile.Name}{config.Caption}</text>
         </g>
     </g>
     <g transform=""translate(25, 60)"">
@@ -135,51 +147,43 @@ namespace AcFunCard.Controllers
             <g transform=""translate(0, 0)"">
                 <g class=""stagger"" style=""animation-delay: 450ms"" transform=""translate(25, 0)"">
                     <text class=""stat bold"" y=""12.5"">粉丝数：</text>
-                    <text class=""stat"" x=""170"" y=""12.5"">{info.Profile.Followed}</text>
+                    <text class=""stat followed"" x=""170"" y=""12.5"">{info.Profile.Followed}</text>
                 </g>
             </g>
             <g transform=""translate(248, 0)"">
                 <g class=""stagger"" style=""animation-delay: 600ms"" transform=""translate(25, 0)"">
                     <text class=""stat bold"" y=""12.5"">关注数：</text>
-                    <text class=""stat"" x=""170"" y=""12.5"">{info.Profile.Following}</text>
+                    <text class=""stat following"" x=""170"" y=""12.5"">{info.Profile.Following}</text>
                 </g>
             </g>
             <g transform=""translate(0, 30)"">
                 <g class=""stagger"" style=""animation-delay: 750ms"" transform=""translate(25, 0)"">
                     <text class=""stat bold"" y=""12.5"">投稿数：</text>
-                    <text class=""stat"" x=""170"" y=""12.5"">{info.Profile.ContentCount}</text>
+                    <text class=""stat content"" x=""170"" y=""12.5"">{info.Profile.ContentCount}</text>
                 </g>
             </g>
             <g transform=""translate(248, 30)"">
                 <g class=""stagger"" style=""animation-delay: 900ms"" transform=""translate(25, 0)"">
                     <text class=""stat bold"" y=""12.5"">守护徽章数：</text>
-                    <text class=""stat"" x=""170"" y=""12.5"">{club.MedalCount}</text>
+                    <text class=""stat medal"" x=""170"" y=""12.5"">{club.MedalCount}</text>
                 </g>
             </g>
             <g transform=""translate(0, 60)"">
                 <g class=""stagger"" style=""animation-delay: 1050ms"" transform=""translate(25, 0)"">
                     <text class=""stat bold"" y=""12.5"">当前佩戴徽章：</text>
-                    <text class=""stat"" x=""170"" y=""12.5"">{club.WearMedalInfo.ClubName ?? "无"}</text>
+                    <text class=""stat club"" x=""170"" y=""12.5"">{club.WearMedalInfo.ClubName ?? "无"}</text>
                 </g>
             </g>
             <g transform=""translate(248, 60)"">
                 <g class=""stagger"" style=""animation-delay: 1200ms"" transform=""translate(25, 0)"">
                     <text class=""stat bold"" y=""12.5"">当前佩戴徽章等级：</text>
-                    <text class=""stat"" x=""170"" y=""12.5"">{club.WearMedalInfo.Level}</text>
+                    <text class=""stat level"" x=""170"" y=""12.5"">{club.WearMedalInfo.Level}</text>
                 </g>
             </g>
         </svg>
     </g>
 </svg>";
             return Content(svg, "image/svg+xml", Encoding.UTF8);
-        }
-
-        internal static void CheckString(ref string str, string def)
-        {
-            if (string.IsNullOrWhiteSpace(str?.Trim()))
-            {
-                str = def;
-            }
         }
     }
 }
