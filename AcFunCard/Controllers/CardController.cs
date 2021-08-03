@@ -1,6 +1,7 @@
 ﻿using AcFunCard.Models;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
+using System;
 using System.Linq;
 using System.Net.Http;
 using System.Text;
@@ -14,6 +15,11 @@ namespace AcFunCard.Controllers
     [EnableCors]
     public class CardController : ControllerBase
     {
+        private const int MaxCharacters = 35;
+        private const int TerminatorOffset = 29;
+        private const int MaxCount = 49 - TerminatorOffset;
+        private static readonly char[] Terminators = { ',', '.', '，', '。' };
+
         private readonly IHttpClientFactory factory;
 
         public CardController(IHttpClientFactory factory)
@@ -74,8 +80,30 @@ namespace AcFunCard.Controllers
             var signature = "";
             foreach (var sign in signatures)
             {
-                signature += @$"<tspan x=""0"" y=""{lineMargin}"">{sign}</tspan>";
-                lineMargin += 20;
+                if (sign.Length > MaxCharacters)
+                {
+                    var begin = 0;
+                    var end = MaxCharacters;
+                    var idx = -1;
+                    var count = Math.Min(sign.Length - TerminatorOffset, MaxCount);
+                    do
+                    {
+                        if (begin + TerminatorOffset < sign.Length && (idx = Terminators.Select(terminator => sign.IndexOf(terminator, begin + TerminatorOffset, count)).Max()) >= 0)
+                        {
+                            end = idx + 1;
+                        }
+                        signature += @$"<tspan x=""0"" y=""{lineMargin}"">{sign[begin..end]}</tspan>";
+                        lineMargin += 20;
+                        begin = end;
+                        end = Math.Min(sign.Length, end + MaxCharacters);
+                        count = Math.Clamp(sign.Length - begin - TerminatorOffset, 0, MaxCount);
+                    } while (begin < sign.Length);
+                }
+                else
+                {
+                    signature += @$"<tspan x=""0"" y=""{lineMargin}"">{sign}</tspan>";
+                    lineMargin += 20;
+                }
             }
             var height = 155 + lineMargin;
             var detailMargin = 60 + lineMargin;
