@@ -11,7 +11,7 @@ pipeline {
 		stage('Build') {
 			steps {
 				script {
-					sh "docker build -t \"127.0.0.1:42266/acfun-card\" --label \"com.microsoft.created-by=visual-studio\" --label \"com.microsoft.visual-studio.project-name=service\" -f ./AcFunCard/Dockerfile ."
+					sh "docker build -t \"127.0.0.1:42266/acfun-card\" --label \"com.microsoft.created-by=visual-studio\" --label \"com.microsoft.visual-studio.project-name=acfuncard\" -f ./AcFunCard/Dockerfile ."
 				}
 			}
 		}
