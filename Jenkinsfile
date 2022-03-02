@@ -3,8 +3,8 @@ pipeline {
 	stages {
 		stage('PreBuild') {
 			steps {
-				sh 'docker pull mcr.microsoft.com/dotnet/aspnet:5.0'
-				sh 'docker pull mcr.microsoft.com/dotnet/sdk:5.0'
+				sh 'docker pull mcr.microsoft.com/dotnet/aspnet:6.0'
+				sh 'docker pull mcr.microsoft.com/dotnet/sdk:6.0'
 			}
 		}
 
